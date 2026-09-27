@@ -1,0 +1,23 @@
+# nginx serves / but the readiness probe hits /healthz, which 404s.
+# Pod is Running but never Ready, so it gets no traffic.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: kd-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: frontend}
+  template:
+    metadata:
+      labels: {app: frontend}
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet: {path: /healthz, port: 80}
+            periodSeconds: 5
